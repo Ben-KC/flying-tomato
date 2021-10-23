@@ -17,17 +17,6 @@ use tui::text::{Span, Text};
 use tui::widgets::{Block, Borders, Paragraph};
 use tui::Terminal;
 
-enum Event {
-    KeyInput(KeyEvent),
-    Tick,
-}
-
-enum Command<'a> {
-    NoCommand,
-    QuitWithError(&'a str),
-    Quit,
-}
-
 fn main() -> Result<(), io::Error> {
     enable_raw_mode()?;
 
@@ -47,10 +36,8 @@ fn main() -> Result<(), io::Error> {
                 }
             }
 
-            if last_tick.elapsed() >= tick_rate {
-                if let Ok(_) = tx.send(Event::Tick) {
-                    last_tick = Instant::now();
-                }
+            if last_tick.elapsed() >= tick_rate && tx.send(Event::Tick).is_ok() {
+                last_tick = Instant::now();
             }
         }
     });
@@ -87,7 +74,7 @@ fn main() -> Result<(), io::Error> {
                     cleanup(&mut terminal)?;
                     break 'outer;
                 }
-                Command::NoCommand => {}
+                Command::None => {}
             }
         }
 
@@ -113,15 +100,15 @@ fn process_command_event(rx: &mpsc::Receiver<Event>) -> Command {
             Event::KeyInput(event) => match (event.code, event.modifiers) {
                 (KeyCode::Char('q'), m) if m.is_empty() => Command::Quit,
                 (KeyCode::Char('c'), m) if m.contains(KeyModifiers::CONTROL) => Command::Quit,
-                _ => Command::NoCommand,
+                _ => Command::None,
             },
-            Event::Tick => Command::NoCommand,
+            Event::Tick => Command::None,
         },
         Err(err) => {
             if err == mpsc::TryRecvError::Disconnected {
                 Command::QuitWithError("mpsc channel disconnected")
             } else {
-                Command::NoCommand
+                Command::None
             }
         }
     }
@@ -156,7 +143,7 @@ fn render_page(
     terminal.draw(|f| {
         let mut text_height = 6;
 
-        if let Some(_) = header {
+        if header.is_some() {
             text_height += 3;
         }
 
@@ -186,8 +173,7 @@ fn render_page(
         );
 
         f.render_widget(
-            Paragraph::new(render_clock(&num_seconds, &mapper, header))
-                .alignment(Alignment::Center),
+            Paragraph::new(render_clock(num_seconds, mapper, header)).alignment(Alignment::Center),
             chunks[1],
         );
 
@@ -213,4 +199,15 @@ impl Interval {
             }
         }
     }
+}
+
+enum Event {
+    KeyInput(KeyEvent),
+    Tick,
+}
+
+enum Command<'a> {
+    None,
+    QuitWithError(&'a str),
+    Quit,
 }
