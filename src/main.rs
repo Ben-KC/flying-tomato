@@ -86,6 +86,11 @@ fn main() -> Result<(), io::Error> {
     Ok(())
 }
 
+/// Perform cleanup operations before exiting
+///
+/// # Arguments
+///
+/// * `terminal` - The crossterm terminal to clean up
 fn cleanup(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), io::Error> {
     disable_raw_mode()?;
     terminal.show_cursor()?;
@@ -94,6 +99,15 @@ fn cleanup(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), 
     Ok(())
 }
 
+/// Convert key inputs into `Command`s
+///
+/// # Arguments
+///
+/// * `rx` - An mpsc receiver which receives an [Event]
+///
+/// # Returns
+///
+/// The [Command] associated with the event
 fn process_command_event(rx: &mpsc::Receiver<Event>) -> Command {
     match rx.try_recv() {
         Ok(e) => match e {
@@ -114,6 +128,17 @@ fn process_command_event(rx: &mpsc::Receiver<Event>) -> Command {
     }
 }
 
+/// Render the clock based on the number of seconds
+///
+/// # Attributes
+///
+/// * `num_seconds` - u32 representing the number of seconds on the clock
+/// * `mapper` - The [TextMapper](font::TextMapper) to use for the rendering
+/// * `header` - Optional header to display below the clock
+///
+/// # Returns
+///
+/// The clock display as a [Text](tui::text::Text) object
 fn render_clock<'a>(num_seconds: &u32, mapper: &TextMapper, header: Option<&'a str>) -> Text<'a> {
     let time = format!("{:0>2}:{:0>2}", num_seconds / 60, num_seconds % 60);
     let mut text = Text::default();
@@ -134,6 +159,14 @@ fn render_clock<'a>(num_seconds: &u32, mapper: &TextMapper, header: Option<&'a s
     text
 }
 
+/// Render the screen
+///
+/// # Arguments
+///
+/// * `terminal` - The crossterm terminal in which to render
+/// * `num_seconds` - u32 representing the number of seconds on the clock (will be passed to [render_clock])
+/// * `mapper` - The [TextMapper](font::TextMapper) to use for the rendering (will be passed to [render_clock])
+/// * `header` - Optional header to display below the clock (will be passed to [render_clock])
 fn render_page(
     terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
     num_seconds: &u32,
@@ -183,12 +216,16 @@ fn render_page(
     Ok(())
 }
 
+/// Enum indicating the current interval
 enum Interval {
+    /// Work interval
     Work,
+    /// Break interval
     Break,
 }
 
 impl Interval {
+    /// Swap in place from a [Work](Interval::Work) to a [Break](Interval::Break) interval, or vice versa
     fn switch(&mut self) {
         match self {
             Self::Work => {
@@ -201,13 +238,20 @@ impl Interval {
     }
 }
 
+/// Enum indicating the type of event
 enum Event {
+    /// Event when a key has been pressed
     KeyInput(KeyEvent),
+    /// Event when nothing has happened
     Tick,
 }
 
+/// Commands to be carried out
 enum Command<'a> {
+    /// Do nothing
     None,
+    /// Quit and print the given message
     QuitWithError(&'a str),
+    /// Quit with no message
     Quit,
 }
