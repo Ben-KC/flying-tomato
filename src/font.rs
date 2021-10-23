@@ -1,10 +1,17 @@
+//! # Font
+//!
+//! This module contains a struct called [TextMapper] which implements helper functions for converting
+//! given strings into lines of ASCII art fonts
+
 use std::collections::HashMap;
 
+/// Contains a map for converting various characters into lines of ASCII art
 pub struct TextMapper {
     map: HashMap<char, [&'static str; 6]>,
 }
 
 impl TextMapper {
+    /// Create a new [TextMapper] and initialize the font mappings
     pub fn new() -> Self {
         let mut mapper = TextMapper {
             map: HashMap::new(),
@@ -87,6 +94,16 @@ impl TextMapper {
         mapper
     }
 
+    /// Get a single line of the ASCII art for a given character
+    ///
+    /// # Arguments
+    ///
+    /// * `c` - The character being mapped
+    /// * `line` - Which line of the ASCII art to return
+    ///
+    /// # Returns
+    ///
+    /// A line of ASCII art
     pub fn get_scan(&self, c: &char, line: usize) -> String {
         if let Some(a) = self.map.get(c) {
             String::from(a[line])
@@ -95,7 +112,18 @@ impl TextMapper {
         }
     }
 
+    /// Get a single line of ASCII art for a given string
+    ///
+    /// # Arguments
+    ///
+    /// * `s` - The string being mapped
+    /// * `line` - Which line of the ASCII art to return
+    ///
+    /// # Returns
+    ///
+    /// A line of ASCII art for all characters in the string
     pub fn get_string_scan(&self, s: &str, line: usize) -> String {
+        // Get the line for each character and concatenate into a single string
         s.chars()
             .map(|c| self.get_scan(&c, line))
             .collect::<String>()
