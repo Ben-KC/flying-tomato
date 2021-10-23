@@ -1,20 +1,21 @@
 mod font;
 
+use crossterm::{
+    event::{self, Event as CEvent, KeyCode, KeyEvent, KeyModifiers},
+    terminal::{disable_raw_mode, enable_raw_mode},
+};
+use font::TextMapper;
 use std::io;
 use std::mem;
+use std::sync::mpsc;
 use std::thread::{self, sleep};
 use std::time::{Duration, Instant};
-use std::sync::mpsc;
-use crossterm::{
-    terminal::{enable_raw_mode, disable_raw_mode},
-    event::{self, Event as CEvent, KeyEvent, KeyCode, KeyModifiers}};
-use tui::Terminal;
-use tui::style::{Color, Style, Modifier};
 use tui::backend::CrosstermBackend;
-use tui::layout::{Layout, Alignment, Constraint, Direction};
-use tui::widgets::{Block, Borders, Paragraph};
+use tui::layout::{Alignment, Constraint, Direction, Layout};
+use tui::style::{Color, Modifier, Style};
 use tui::text::{Span, Text};
-use font::TextMapper;
+use tui::widgets::{Block, Borders, Paragraph};
+use tui::Terminal;
 
 enum Event {
     KeyInput(KeyEvent),
@@ -69,9 +70,9 @@ fn main() -> Result<(), io::Error> {
     let mut current_interval = Interval::Work;
 
     'outer: for _ in 0..(NUM_INTERVALS * 2) {
-        let (length, msg) = match current_interval { 
-            Interval::Work => { (WORK_LENGTH, "Work Interval") } 
-            Interval::Break => { (BREAK_LENGTH, "Break Interval") } 
+        let (length, msg) = match current_interval {
+            Interval::Work => (WORK_LENGTH, "Work Interval"),
+            Interval::Break => (BREAK_LENGTH, "Break Interval"),
         };
 
         for i in (0..=length).rev() {
@@ -108,21 +109,21 @@ fn cleanup(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<(), 
 
 fn process_command_event(rx: &mpsc::Receiver<Event>) -> Command {
     match rx.try_recv() {
-        Ok(e) => {
-            match e {
-                Event::KeyInput(event) => match (event.code, event.modifiers) {
-                    (KeyCode::Char('q'), m) if m.is_empty() => {
-                        Command::Quit
-                    }
-                    (KeyCode::Char('c'), m) if m.contains(KeyModifiers::CONTROL) => {
-                        Command::Quit
-                    }
-                    _ => {Command::NoCommand}
-                }
-                Event::Tick => {Command::NoCommand}
+        Ok(e) => match e {
+            Event::KeyInput(event) => match (event.code, event.modifiers) {
+                (KeyCode::Char('q'), m) if m.is_empty() => Command::Quit,
+                (KeyCode::Char('c'), m) if m.contains(KeyModifiers::CONTROL) => Command::Quit,
+                _ => Command::NoCommand,
+            },
+            Event::Tick => Command::NoCommand,
+        },
+        Err(err) => {
+            if err == mpsc::TryRecvError::Disconnected {
+                Command::QuitWithError("mpsc channel disconnected")
+            } else {
+                Command::NoCommand
             }
         }
-        Err(err) => { if err == mpsc::TryRecvError::Disconnected { Command::QuitWithError("mpsc channel disconnected") } else { Command::NoCommand }}
     }
 }
 
@@ -135,13 +136,23 @@ fn render_clock<'a>(num_seconds: &u32, mapper: &TextMapper, header: Option<&'a s
     }
 
     if let Some(h) = header {
-        text.extend(Text::styled(format!("\n{}\n", h), Style::default().add_modifier(Modifier::BOLD).fg(Color::Yellow)));
+        text.extend(Text::styled(
+            format!("\n{}\n", h),
+            Style::default()
+                .add_modifier(Modifier::BOLD)
+                .fg(Color::Yellow),
+        ));
     }
-    
+
     text
 }
 
-fn render_page(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>, num_seconds: &u32, mapper: &TextMapper, header: Option<&str>) -> Result<(), io::Error> {
+fn render_page(
+    terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+    num_seconds: &u32,
+    mapper: &TextMapper,
+    header: Option<&str>,
+) -> Result<(), io::Error> {
     terminal.draw(|f| {
         let mut text_height = 6;
 
@@ -153,19 +164,32 @@ fn render_page(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>, num_second
 
         let chunks = Layout::default()
             .direction(Direction::Vertical)
-            .constraints([
-                Constraint::Length(space),
-                Constraint::Length(text_height),
-                Constraint::Length(space),
-            ].as_ref()).split(f.size());
+            .constraints(
+                [
+                    Constraint::Length(space),
+                    Constraint::Length(text_height),
+                    Constraint::Length(space),
+                ]
+                .as_ref(),
+            )
+            .split(f.size());
 
-        f.render_widget(Block::default()
-            .borders(Borders::ALL)
-            .title(Span::styled("Flying Tomato", Style::default().fg(Color::White)))
-            .border_style(Style::default().fg(Color::Red)), f.size());
+        f.render_widget(
+            Block::default()
+                .borders(Borders::ALL)
+                .title(Span::styled(
+                    "Flying Tomato",
+                    Style::default().fg(Color::White),
+                ))
+                .border_style(Style::default().fg(Color::Red)),
+            f.size(),
+        );
 
-        f.render_widget(Paragraph::new(render_clock(&num_seconds, &mapper, header))
-            .alignment(Alignment::Center), chunks[1]);
+        f.render_widget(
+            Paragraph::new(render_clock(&num_seconds, &mapper, header))
+                .alignment(Alignment::Center),
+            chunks[1],
+        );
 
         sleep(Duration::from_millis(10));
     })?;
@@ -181,8 +205,12 @@ enum Interval {
 impl Interval {
     fn switch(&mut self) {
         match self {
-            Self::Work => {let _ = mem::replace(self, Self::Break);}
-            Self::Break => {let _ = mem::replace(self, Self::Work);}
+            Self::Work => {
+                let _ = mem::replace(self, Self::Break);
+            }
+            Self::Break => {
+                let _ = mem::replace(self, Self::Work);
+            }
         }
     }
 }
