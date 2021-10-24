@@ -7,7 +7,10 @@ use std::collections::HashMap;
 
 /// Contains a map for converting various characters into lines of ASCII art
 pub struct TextMapper {
-    map: HashMap<char, [&'static str; 6]>,
+    /// Mappings between a character and its corresponding ASCII art
+    map: HashMap<char, Vec<&'static str>>,
+    /// Number of lines comprising the ASCII art
+    scans: usize,
 }
 
 impl TextMapper {
@@ -15,81 +18,84 @@ impl TextMapper {
     pub fn new() -> Self {
         let mut mapper = TextMapper {
             map: HashMap::new(),
+            scans: 6,
         };
 
         mapper.map.insert(
             '0',
-            [
+            vec![
                 r" _____ ", r"|  _  |", r"| |/' |", r"|  /| |", r"\ |_/ /", r" \___/ ",
             ],
         );
 
         mapper.map.insert(
             '1',
-            [r" __  ", r"/  | ", r"`| | ", r" | | ", r"_| |_", r"\___/"],
+            vec![r" __  ", r"/  | ", r"`| | ", r" | | ", r"_| |_", r"\___/"],
         );
 
         mapper.map.insert(
             '2',
-            [
+            vec![
                 r" _____ ", r"/ __  \", r"`' / /'", r"  / /  ", r"./ /___", r"\_____/",
             ],
         );
 
         mapper.map.insert(
             '3',
-            [
+            vec![
                 r" _____ ", r"|____ |", r"    / /", r"    \ \", r".___/ /", r"\____/ ",
             ],
         );
 
         mapper.map.insert(
             '4',
-            [
+            vec![
                 r"   ___ ", r"  /   |", r" / /| |", r"/ /_| |", r"\___  |", r"    |_/",
             ],
         );
 
         mapper.map.insert(
             '5',
-            [
+            vec![
                 r" _____ ", r"|  ___|", r"|___ \ ", r"    \ \", r"/\__/ /", r"\____/ ",
             ],
         );
 
         mapper.map.insert(
             '6',
-            [
+            vec![
                 r"  ____ ", r" / ___|", r"/ /___ ", r"| ___ \", r"| \_/ |", r"\_____/",
             ],
         );
 
         mapper.map.insert(
             '7',
-            [
+            vec![
                 r" ______", r"|___  /", r"   / / ", r"  / /  ", r"./ /   ", r"\_/    ",
             ],
         );
 
         mapper.map.insert(
             '8',
-            [
+            vec![
                 r" _____ ", r"|  _  |", r" \ V / ", r" / _ \ ", r"| |_| |", r"\_____/",
             ],
         );
 
         mapper.map.insert(
             '9',
-            [
+            vec![
                 r" _____ ", r"|  _  |", r"| |_| |", r"\____ |", r".___/ /", r"\____/ ",
             ],
         );
 
         mapper
             .map
-            .insert(':', [r"   ", r"(_)", r"   ", r" _ ", r"(_)", r"   "]);
+            .insert(':', vec![r"   ", r"(_)", r"   ", r" _ ", r"(_)", r"   "]);
 
-        mapper.map.insert(' ', [r" ", r" ", r" ", r" ", r" ", r" "]);
+        mapper
+            .map
+            .insert(' ', vec![r" ", r" ", r" ", r" ", r" ", r" "]);
 
         mapper
     }
@@ -127,5 +133,10 @@ impl TextMapper {
         s.chars()
             .map(|c| self.get_scan(&c, line))
             .collect::<String>()
+    }
+
+    /// Get the number of scans
+    pub fn get_num_scans(&self) -> usize {
+        self.scans
     }
 }

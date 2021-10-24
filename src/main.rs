@@ -143,7 +143,7 @@ fn render_clock<'a>(num_seconds: &u32, mapper: &TextMapper, header: Option<&'a s
     let time = format!("{:0>2}:{:0>2}", num_seconds / 60, num_seconds % 60);
     let mut text = Text::default();
 
-    for i in 0..=5 {
+    for i in 0..mapper.get_num_scans() {
         text.extend(Text::from(mapper.get_string_scan(&time, i)));
     }
 
@@ -174,7 +174,7 @@ fn render_page(
     header: Option<&str>,
 ) -> Result<(), io::Error> {
     terminal.draw(|f| {
-        let mut text_height = 6;
+        let mut text_height = mapper.get_num_scans().try_into().unwrap();
 
         if header.is_some() {
             text_height += 3;
