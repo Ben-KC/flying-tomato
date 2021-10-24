@@ -83,6 +83,14 @@ pub fn render_page(
             text_height += 3;
         }
 
+        if f.size().height < text_height {
+            f.render_widget(
+                Paragraph::new(Text::from("What is this, a terminal for ants?")),
+                f.size(),
+            );
+            return;
+        }
+
         let space = (f.size().height - text_height) / 2;
 
         let chunks = Layout::default()
