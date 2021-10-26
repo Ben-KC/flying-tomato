@@ -32,7 +32,7 @@ pub fn cleanup(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<
 /// # Attributes
 ///
 /// * `num_seconds` - u32 representing the number of seconds on the clock
-/// * `mapper` - The [TextMapper](font::TextMapper) to use for the rendering
+/// * `mapper` - The [TextMapper](TextMapper) to use for the rendering
 /// * `header` - Optional header to display below the clock
 ///
 /// # Returns
@@ -68,7 +68,7 @@ pub fn render_clock<'a>(
 ///
 /// * `terminal` - The crossterm terminal in which to render
 /// * `num_seconds` - u32 representing the number of seconds on the clock (will be passed to [render_clock])
-/// * `mapper` - The [TextMapper](font::TextMapper) to use for the rendering (will be passed to [render_clock])
+/// * `mapper` - The [TextMapper](TextMapper) to use for the rendering (will be passed to [render_clock])
 /// * `header` - Optional header to display below the clock (will be passed to [render_clock])
 pub fn render_page(
     terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
