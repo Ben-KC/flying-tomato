@@ -19,7 +19,7 @@ use tui::backend::CrosstermBackend;
 use tui::Terminal;
 
 fn main() -> Result<(), io::Error> {
-    enable_raw_mode()?;
+    enable_raw_mode().expect("Could not enable raw mode");
 
     let (tx, rx) = mpsc::channel();
     let tick_rate = Duration::from_millis(200);
@@ -49,9 +49,9 @@ fn main() -> Result<(), io::Error> {
 
     let stdout = io::stdout();
     let backend = CrosstermBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
+    let mut terminal = Terminal::new(backend).expect("Could not create terminal");
 
-    terminal.clear()?;
+    terminal.clear().expect("Could not clear terminal");
 
     let mapper = TextMapper::new();
 
@@ -64,15 +64,15 @@ fn main() -> Result<(), io::Error> {
         };
 
         for i in (0..=length).rev() {
-            render_page(&mut terminal, &i, &mapper, Some(msg))?;
+            render_page(&mut terminal, &i, &mapper, Some(msg)).expect("Could not render page");
 
             match process_command_event(&rx) {
                 Command::Quit => {
-                    cleanup(&mut terminal)?;
+                    cleanup(&mut terminal).expect("Could not clean up terminal");
                     break 'outer;
                 }
                 Command::QuitWithError(_) => {
-                    cleanup(&mut terminal)?;
+                    cleanup(&mut terminal).expect("Could not clean up terminal");
                     break 'outer;
                 }
                 Command::None => {}
@@ -82,7 +82,7 @@ fn main() -> Result<(), io::Error> {
         current_interval.switch();
     }
 
-    cleanup(&mut terminal)?;
+    cleanup(&mut terminal).expect("Could not clean up terminal");
 
     Ok(())
 }
