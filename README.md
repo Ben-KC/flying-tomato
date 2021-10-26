@@ -1,6 +1,6 @@
 # Flying Tomato
 
-## A blazing fast Pomodoro timer, written in Rust
+## A blazing fast command-line Pomodoro timer, written in Rust
 
 The [Pomodoro Technique](https://en.wikipedia.org/wiki/Pomodoro_Technique) is a helpful method of breaking tasks into 
 intervals of work and break. A number of tools already exist for timing and tracking there intervals, but they all have 
@@ -9,6 +9,17 @@ one thing in common: they are incredibly slow. Flying Tomato seeks to solve that
 Being built in Rust, this Pomodoro timer is memory-safe, cross-platform, and blazing fast. Where most timers can take 
 as long as 25 minutes to get through a work interval, Flying Tomato completes that same interval in under 25 
 ***seconds***!
+
+## Installation
+
+To install Flying Tomato, you can either build from source or download the appropriate executable from the [Releases 
+page](https://github.com/Ben-KC/flying-tomato/releases).
+
+## Usage
+
+1. In your terminal, navigate to wherever you've placed the executable (or add it to PATH)
+2. Execute the executable
+3. Blaze through work intervals faster than you ever have before!
 
 ## FAQS
 
