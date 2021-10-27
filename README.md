@@ -34,5 +34,5 @@ as "blazing fast."**
 
 * Is this going to become a real, usable Pomodoro timer?  
 **Not at the moment. I was looking for a good way to start learning how to use the 
-[`tui`](https://crates.io/crates/tui) crate and though this would be a fun way to do that. I might still come back and 
+[`tui`](https://crates.io/crates/tui) crate and thought this would be a fun way to do that. I might still come back and 
 build on this as a continued learning opportunity, though.**
