@@ -10,13 +10,6 @@ Being built in Rust, this Pomodoro timer is memory-safe, cross-platform, and bla
 as long as 25 minutes to get through a work interval, Flying Tomato completes that same interval in under 25 
 ***seconds***!
 
-## See it in action!
-
-![Alt Text: Pomofocus.io is opened in a browser window and its pomodoro timer is started. A GNOME pomodoro is then opened and started.
-Finally, a terminal is opened and ./flying_tomato is slowly typed in. When the return key is hit, a TUI pomodoro timer appears.
-The time decreases rapidly, and the TUI pomodoro timer flies through a work and a break interval in the time it takes the other
-timers to get just a couple of minutes into their respective work intervals.](media/flying-tomato.GIF)
-
 ## Installation
 
 To install Flying Tomato, you can either build from source or download the appropriate executable from the [Releases 
