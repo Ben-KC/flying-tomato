@@ -10,6 +10,14 @@ Being built in Rust, this Pomodoro timer is memory-safe, cross-platform, and bla
 as long as 25 minutes to get through a work interval, Flying Tomato completes that same interval in under 25 
 ***seconds***!
 
+## See it in action!
+
+> Note: it only looks like it's skipping numbers because it's so blazing fast that the framerate can't keep up
+
+![Two pomodoro timers and a terminal window are open. The pomodoro timers are each started and begin counting down. In 
+the terminal, the flying_tomato executable is run and the timer appears, counting down through an entire work interval 
+before the other timers even get through their first 30 seconds.](./media/flying-tomato.gif)
+
 ## Installation
 
 To install Flying Tomato, you can either build from source or download the appropriate executable from the [Releases 
